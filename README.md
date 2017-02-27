@@ -20,12 +20,22 @@ Usage
 
     JenkinsBuildPipeline.startBuildPipeline([
       'job1', 'job2'
-    ]).then(function onPipelineSuccess(buildInfo) {
+    ])
+    .then(function onPipelineSuccess(buildInfo) {
       // buildInfo is info about the build number of the last build in the pipeline
       console.log(buildInfo.buildNumber) // String like '123'
-    }).catch(function onPipelineFailure() {
-      // oops someting went wrong somewhere!
-      // error API under construction
+    })
+    .catch(function onPipelineFailure(buildInfo) {
+      if (buildInfo.isTimeoutWhileOngoing) {
+        msg = 'Build taking too long, giving up on following it. Check status on ' + buildInfo.url;
+      } else if (buildInfo.isTimeoutWhileQueued) {
+        msg = 'Build queued for too long, giving up on following it. Check status on ' + buildInfo.url;
+      } else if (buildInfo.isSuccess === false) {
+        msg = 'Build failed! Check status on ' + buildInfo.url;
+      } else {
+        msg = 'Unexpected error during the pipeline execution or inside jenkins-build-pipeline code!';
+      }
+      console.error(msg);
     });
 
 
@@ -41,15 +51,27 @@ then you should pass `myproject/job/releases/job/master` as job name.
 Config
 ------
 
+You can configure polling interval, and when to report a timeout while build is still queued or ongoing.
+
+You should set this value to an abnormally high time that should not happen in normal cases.
+For example if your builds typically take 6-8 minutes, set it to e.g. 15 minutes.
+
+Note that the build might be still queued or ongoing just fine, but maybe your build server is slow,
+or there's a bug in pipeline code. Anyway, if build time significantly surpasses the timeout value,
+some intervention is needed.
+
+For now the build is stopped and a promise rejection happens when hitting the timeout.
+
+This is how you override the defaults:
+
     var JenkinsBuildPipeline = require('jenkins-build-pipeline');
 
-    // how often to shoot Jenkins API
-    JenkinsBuildPipeline.POLLING_INTERVAL_SECONDS = 5;
+    JenkinsBuildPipeline.POLLING_INTERVAL_SECONDS = 15;
+    JenkinsBuildPipeline.BUILD_NOT_YET_STARTED_DIFF_SECONDS = JenkinsBuildPipeline.POLLING_INTERVAL_SECONDS * 3;
+    JenkinsBuildPipeline.QUEUED_TIMEOUT_SECONDS = 5 * 60;
+    JenkinsBuildPipeline.ONGOING_TIMEOUT_SECONDS = 30 * 60;
 
-    // If we ask Jenkins for the first time about the status of the build, and Jenkins tells us that
-    // the build we ask about has just finished 1 second ago, it means the build info we got was about a previous build
-    // This entry allows to customize that logic.
-    JenkinsBuildPipeline.BUILD_NOT_YET_STARTED_DIFF_SECONDS = JenkinsBuildPipeline.POLLING_INTERVAL_SECONDS * 4;
+    JenkinsBuildPipeline.startBuildPipeline(...)
 
 Debugging
 ---------
