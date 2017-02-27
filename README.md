@@ -1,10 +1,17 @@
 jenkins-build-pipeline
 ======================
 
+[![Get it on npm](https://nodei.co/npm/jenkins-build-pipeline.png?compact=true)](https://www.npmjs.org/package/jenkins-build-pipeline)
+
 > Promise-based API for starting a pipeline of subsequent jobs
 
 This implementation uses polling of `/job/<jobName>/lastBuild/api/json` Jenkins HTTP API,
 without using queue API (for some reason, my company's Jenkins fork does not support queue API... don't ask).
+
+Installation
+-----------
+
+    npm install --save jenkins-build-pipeline
 
 Usage
 -----
