@@ -41,7 +41,7 @@ Usage
 
 Then in the console
 
-    JENKINS_USER=myjenkinsuser JENKINS_PASSWORD=myjenkinspassword node my-jenkins-pipeline.js
+    JENKINS_USER=myjenkinsuser JENKINS_PASSWORD=myjenkinspassword JENKINS_HOST=example.org node my-jenkins-pipeline.js
 
 Note: job name in the examples is a part of your Jenkins job URL after the first `job/`
 
