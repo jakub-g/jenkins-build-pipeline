@@ -1,6 +1,6 @@
 {
   "name": "jenkins-build-pipeline",
-  "version": "0.1.4",
+  "version": "0.2.0",
   "description": "Promise-based API for running a pipeline of multiple dependent jobs",
   "author": "Jakub Gieryluk <jakub.g.opensource@gmail.com>",
   "repository": {
